@@ -1,0 +1,6 @@
+morex_contig_135394	352	353	M	Barley_268442
+morex_contig_135394	353	354	M	Barley_268443
+morex_contig_135394	536	537	K	Barley_268453
+morex_contig_135394	546	547	Y	Barley_268454
+morex_contig_135394	559	560	Y	Barley_268455
+morex_contig_135394	2382	2383	R	Barley_268466

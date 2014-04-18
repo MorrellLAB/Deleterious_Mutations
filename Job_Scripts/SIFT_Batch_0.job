@@ -1,0 +1,31 @@
+#!/bin/bash -l
+
+#PBS -l mem=15gb,nodes=1:ppn=1,walltime=192:00:00
+#PBS -m abe
+#PBS -M konox006@umn.edu
+#PBS -q long
+
+#	The program we are using
+#	This one lets us submit a NCBI GenBank ID, which SNPMeta outputs
+PROGRAM=${HOME}/Soft/sift5.0.3/bin/SIFT_for_submitting_fasta_seq.csh
+#	The database SIFT uses for BLAST
+SIFT_DB=${HOME}/Projects/Deleterious_Mutations/NR_SIFT/nr_formatted
+#	The directory with the substitutions
+SNPS_DIR=${HOME}/Projects/Deleterious_Mutations/Barley_SNP_SIFT
+#	Where we want to store our predictions
+PRED_DIR=${SNPS_DIR}/Predictions
+SEQ_DIR=${SNPS_DIR}/Seqs
+SUB_DIR=${SNPS_DIR}/Subs
+#	The batch number we are working on
+BATCH=Batch_00
+
+#	cd into the SUBS directory
+cd $SNPS_DIR
+for x in `cat $BATCH.txt`
+do
+	seq_file=${SEQ_DIR}/${x}_Seq.fasta
+	subs_file=${SUB_DIR}/${x}_Sub.txt
+	out=${PRED_DIR}/${x}_out.txt
+	err=${PRED_DIR}/${x}_err.txt
+	csh ${PROGRAM} ${seq_file} ${SIFT_DB} ${subs_file} > $out 2> $err
+done

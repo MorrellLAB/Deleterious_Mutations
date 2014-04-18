@@ -1,0 +1,44 @@
+#!/bin/sh
+
+#PBS -l mem=15gb,nodes=1:ppn=4,walltime=192:00:00 
+#PBS -m abe 
+#PBS -M konox006@umn.edu 
+#PBS -q long
+
+#   The program we are calling for realignment
+PROGRAM=${HOME}/Soft/GenomeAnalysisTK-2.7-2-g6bda569/GenomeAnalysisTK.jar
+SHARED=${HOME}/Shared
+#   The base directory for our projects
+BASE=${HOME}/Projects/Deleterious_Mutations
+#	The species
+SPECIES="Barley_Exomes"
+#	The capture
+CAPTURE="KU-Missouri"
+#   The reference sequence
+#REF=${SHARED}/Morex_Reference/131012_morex_pseudoscaffolds.fasta
+REF=${SHARED}/References/Reference_Sequences/Barley/Morex/Morex_Reference.fasta
+#	The capture design
+CAPTURE_DESIGN=${BASE}/${SPECIES}/${CAPTURE}/capture.bed
+#   The alignment file
+ALIGNMENT=${CAPTURE}_AllSamples_2014-01-02.bam
+#	cd into the directory
+module load java
+cd ${BASE}/${SPECIES}/${CAPTURE}
+
+#	Hapotypecaller Options
+#	--heterozygosity [float]
+#		the expected per-bp pairwise diversity
+#		using 0.008 from Morrell and Clegg 2007
+#	--minPruning [int]
+#		SNPs and Indels have to be supported by at least [int] reads
+#		to be included in the analysis
+#		using 18, for an average of at least 2 per sample
+#		GATK docs warns about setting this too high and missing calls
+_JAVA_OPTIONS="-Xmx15g -XX:MaxPermSize=10g" java -jar $PROGRAM\
+	-T HaplotypeCaller\
+	--heterozygosity 0.008\
+	--minPruning 18\
+	-L ${CAPTURE_DESIGN}\
+	-I ${ALIGNMENT}\
+	-R ${REF}\
+	-o ${ALIGNMENT/.bam/_RawVCF_Long_Defaults.vcf}

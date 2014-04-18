@@ -1,0 +1,3 @@
+morex_contig_135953	4865	4866	Y	Barley_272684
+morex_contig_135953	4870	4871	Y	Barley_272685
+morex_contig_135953	4876	4877	M	Barley_272686

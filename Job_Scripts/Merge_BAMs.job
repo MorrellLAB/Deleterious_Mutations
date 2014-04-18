@@ -1,0 +1,54 @@
+#!/bin/sh
+
+#PBS -l mem=16000mb,nodes=1:ppn=1,walltime=12:00:00 
+#PBS -m abe 
+#PBS -M konox006@umn.edu 
+#PBS -q lab
+
+#	The root of where we will work
+PROJECT_DIR=${HOME}/Projects/Deleterious_Mutations/Barley_Exomes
+#	The capture we are working with
+CAPTURE="KU-Missouri"
+#	The program we are using
+MERGESAM=${HOME}/Soft/picard-tools-1.101/MergeSamFiles.jar
+CLEANSAM=${HOME}/Soft/picard-tools-1.101/CleanSam.jar
+
+#	The files we are going to merge
+BARKE=Barke/Barke_KU-Missouri_2014-01-02_Finished_Realigned.bam
+BOWMAN=Bowman/Bowman_KU-Missouri_2014-01-02_Finished_Realigned.bam
+HARRINGTON=Harrington/Harrington_KU-Missouri_2014-01-02_Finished_Realigned.bam
+HARUNA_NIJO=Haruna_Nijo/Haruna_Nijo_KU-Missouri_2014-01-02_Finished_Realigned.bam
+IGRI=Igri/Igri_KU-Missouri_2014-01-02_Finished_Realigned.bam
+KINDRED=Kindred/Kindred_KU-Missouri_2014-01-02_Finished_Realigned.bam
+MOREX=Morex/Morex_KU-Missouri_2014-01-02_Finished_Realigned.bam
+STEPTOE=Steptoe/Steptoe_KU-Missouri_2014-01-15_Finished_Realigned.bam
+OUH602=OUH602/OUH602_KU-Missouri_2014-01-02_Finished_Realigned.bam
+
+#	cd into the directory
+cd ${PROJECT_DIR}/${CAPTURE}
+
+#	Merge the alignments
+java -Xmx15g -XX:MaxPermSize=10g -jar\
+	${MERGESAM}\
+	INPUT=${BARKE}\
+	INPUT=${BOWMAN}\
+	INPUT=${HARRINGTON}\
+	INPUT=${HARUNA_NIJO}\
+	INPUT=${IGRI}\
+	INPUT=${KINDRED}\
+	INPUT=${MOREX}\
+	INPUT=${OUH602}\
+	INPUT=${STEPTOE}\
+	OUTPUT=${CAPTURE}_AllSamples_2014-01-02.bam\
+	CREATE_INDEX=true\
+	SORT_ORDER=coordinate\
+	TMP_DIR=${HOME}/Scratch/Picard_Tmp
+
+#	We have to use CleanSam because some of the reads have a strange form after being
+#	realigned. They might hang off the edge of a contig, and CleanSam will softmask
+#	them, so that they don't interfere with other tools.
+#java -Xmx15g -XX:MaxPermSize=10g -jar\
+#	${CLEANSAM}\
+#	INPUT=${CAPTURE}_AllSamples_2014-01-02.bam\
+#	OUTPUT=${CAPTURE}_AllSamples_2014-01-02_Clean.bam\
+#	CREATE_INDEX=true

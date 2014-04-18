@@ -1,0 +1,7 @@
+morex_contig_94710	2152	2153	R	Barley_237645
+morex_contig_94710	2438	2439	R	Barley_237647
+morex_contig_94710	2513	2514	R	Barley_237650
+morex_contig_94710	2631	2632	K	Barley_237651
+morex_contig_94710	2635	2636	R	Barley_237652
+morex_contig_94710	2689	2690	Y	Barley_237653
+morex_contig_94710	4423	4424	S	Barley_237670

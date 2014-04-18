@@ -1,0 +1,47 @@
+#!/bin/sh
+
+#PBS -l mem=6000mb,nodes=1:ppn=8,walltime=3:00:00 
+#PBS -m abe 
+#PBS -M konox006@umn.edu 
+#PBS -q lab
+
+#	The aligner command
+PROGRAM=${HOME}/Soft/bwa-0.7.5a/bwa
+#	My project space folder
+PROJECT_DIR=${HOME}/Projects/Deleterious_Mutations/Barley_Exomes
+#	The directory for the reference sequence
+REF_DIR=/home/morrellp/shared/Morex_Reference
+#	The sample I am aligning
+SAMPLE="Morex"
+#	The facility that did the capture
+CAPTURE="KU-Missouri"
+#	The directory with the reads
+READS_DIR=/home/morrellp/shared/Barley_Capture_Reads_ScytheTrimmed
+YMD=`date +%Y-%m-%d`
+
+#	CHANGES
+#       2013-10-11
+#		Initial Alignment
+#       Using parameters
+#           -t 8: Use 8 threads
+#           -k 25: Seed length 25
+#           -r 1.0: Re-seed if match is greater than 1.0 * seed length
+#           -M : mark split hits as secondary
+#           -T 80: only output alignments greater than score 80
+#               This should capture only reads with less than five mismatches
+#		2013-10-25
+#			Paralogue problems!
+#			Changing seed length to 10
+#			Increasing the score cutoff to 85
+#		2014-10-02
+#			Some indels not being resolved properly.
+#			setting gapopen penalty to 8 and gapextend to 1
+#			
+mkdir -p ${PROJECT_DIR}/${CAPTURE}/${SAMPLE}
+cd ${PROJECT_DIR}/${CAPTURE}/${SAMPLE}
+#	Now we run the program with all our options
+$PROGRAM mem -t 8 -k 10 -r 1.0 -M -T 85 -O 8 -E 1\
+	${REF_DIR}/bwa_MorexRef\
+    ${READS_DIR}/${CAPTURE}/${SAMPLE}/Forward.fastq.gz \
+    ${READS_DIR}/${CAPTURE}/${SAMPLE}/Reverse.fastq.gz > \
+	${SAMPLE}_${CAPTURE}_${YMD}.sam

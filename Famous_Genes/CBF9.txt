@@ -1,0 +1,3 @@
+morex_contig_261733	110	111	K	Barley_370717
+morex_contig_261733	412	413	K	Barley_370719
+morex_contig_261733	431	432	R	Barley_370720

@@ -1,0 +1,8 @@
+morex_contig_1570478	718	719	Y	Barley_477707
+morex_contig_1570478	724	725	R	Barley_477708
+morex_contig_1570478	840	841	W	Barley_477709
+morex_contig_1570478	2210	2211	Y	Barley_477714
+morex_contig_1570478	2213	2214	K	Barley_477715
+morex_contig_1570478	2568	2569	K	Barley_477716
+morex_contig_1570478	3579	3580	R	Barley_477717
+morex_contig_1570478	4128	4129	W	Barley_477718

@@ -1,0 +1,5 @@
+morex_contig_272909	562	563	M	Barley_377196
+morex_contig_272909	1062	1063	Y	Barley_377198
+morex_contig_272909	1090	1091	Y	Barley_377199
+morex_contig_272909	1131	1132	K	Barley_377200
+morex_contig_272909	2351	2352	Y	Barley_377207

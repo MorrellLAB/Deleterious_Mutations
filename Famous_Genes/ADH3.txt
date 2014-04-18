@@ -1,0 +1,2 @@
+morex_contig_1578345	2825	2826	R	Barley_490871
+morex_contig_1578345	2846	2847	K	Barley_490872

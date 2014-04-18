@@ -1,0 +1,72 @@
+#!/bin/sh
+
+#PBS -l mem=15gb,nodes=1:ppn=4,walltime=72:00:00 
+#PBS -m abe 
+#PBS -M konox006@umn.edu
+#PBS -q lab
+
+#	The program we are calling for realignment
+PROGRAM=${HOME}/Soft/GenomeAnalysisTK-2.8-1-g932cd3a/GenomeAnalysisTK.jar
+#	The base directory for our projects
+BASE=${HOME}/Projects/Deleterious_Mutations
+#	And the shared space for common data
+SHARED=/home/morrellp/shared
+#	The Species we are working on
+SPECIES="Barley_Exomes"
+#	And the capture we are working on 
+CAPTURE="KU-Missouri"
+#	The sample
+SAMPLE="HB2029-4"
+#	The date of the alignment
+YMD="2014-02-07"
+#	The reference sequence
+REF=${SHARED}/Morex_Reference/Morex_Reference.fasta
+#	The alignment file
+ALIGNMENT=${BASE}/${SPECIES}/${CAPTURE}/${SAMPLE}/${SAMPLE}_${CAPTURE}_${YMD}_Finished_Realigned.bam
+#	The capture design
+CAPTURE_DESIGN=${BASE}/${SPECIES}/${CAPTURE}/capture.bed
+#	the sites to genotype
+SITES=${BASE}/${SPECIES}/${CAPTURE}/KU-Missouri_AllSamples_2014-01-02_SNP_Recal.vcf
+
+#	cd into the directory
+cd ${BASE}/${SPECIES}/${CAPTURE}/${SAMPLE}
+#	JAVA OPTIONS
+#	-Xmx[amount]	:	use [amount] of memory.
+#	-jar <file>		:	execute <file>, which is a jar file
+
+#	GATK OPTIONS
+#		-T UnifiedGenotyper 
+#			Use the unified genotyper program to call variants
+#		--alleles <VCF>
+#			Genotype the sites listed in <VCF>
+#		--genotyping_mode GENOTYPE_GIVEN_ALLELES
+#			Genotype only the given alleles, specified by --alleles
+#		-o SNPs.vcf
+#			Output for the genotypes
+#		-L Intervals
+#			operate only on the given intervals
+#		-dcov 200
+#			Unknown, but listed in GATK Docs for whole exome or WGS
+#		-R <Reference>
+#		--heterozygosity 0-03
+#			Expected heterozygosity, or an estimate of theta
+#			0.03 for H. bulbosum, see Morrell et al. 2013
+#		--output_mode EMIT_ALL_SITES
+#			print all sites, whether or not there is a difference from ref
+#			we need this because a lot of the tiems vulgare and bulbosum
+#			will have the same state
+#			Paired with GENOTYPE_GIVEN_ALLELES, this option will give us the
+#			bulbosum state for every variant in the input VCF, given that 
+#			there are reads to support a call
+
+_JAVA_OPTIONS="-Xmx15g -XX:MaxPermSize=10g -Djava.io.tmpdir=/scratch/tkono" java -jar $PROGRAM \
+	-T UnifiedGenotyper\
+	-I ${ALIGNMENT}\
+	--alleles ${SITES}\
+	--genotyping_mode GENOTYPE_GIVEN_ALLELES\
+	--output_mode EMIT_ALL_SITES\
+	-o ${SAMPLE}_${YMD}_Raw.vcf\
+	-L ${CAPTURE_DESIGN}\
+	-dcov 200\
+	-R ${REF}\
+	--heterozygosity 0.03

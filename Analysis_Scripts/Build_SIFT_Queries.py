@@ -4,7 +4,7 @@
 #   whether a SNP is deleterious or not
 #   takes four arguments:
 #       1) The modified GFF that contains the SNP names as the final column
-#       2) The BED file that describes the SNPs
+#       2) The VCF file that describes the SNPs
 #       3) The annotation output from mRNA_SNPs.py
 #       4) The reference FASTA
 
@@ -24,15 +24,17 @@ ref_dict = SeqIO.to_dict(SeqIO.parse(handle, 'fasta'))
 handle.close()
 sys.stderr.write(' Done!\n')
 
-#   Read in the BED file
+#   Read in the VCF file
 sys.stderr.write('Opening ' + sys.argv[2] + ' for reading...')
 bed_snps = {}
 with open(sys.argv[2], 'r') as f:
     for line in f:
-        tmp = line.strip().split('\t')
-        #   the final item in the list is the SNP ID
-        bed_snps[tmp[4]] = (tmp[0], tmp[1], tmp[2])
-
+        if line.startswith('#'):
+            continue
+        else:
+            tmp = line.strip().split('\t')
+            #   The third column in a VCF is the SNP ID
+            bed_snps[tmp[2]] = (tmp[0], tmp[1])
 #   Read in the annotation table
 #   We only care about this for the amino acid states
 gff_annotations = {}

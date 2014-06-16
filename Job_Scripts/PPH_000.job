@@ -1,0 +1,24 @@
+#!/bin/bash -l
+
+#PBS -l mem=14gb,nodes=1:ppn=1,walltime=64:00:00
+#PBS -m abe
+#PBS -M konox006@umn.edu
+#PBS -q medium
+
+# Locally installed perl modules
+export PERL5LIB=${HOME}/.perl_modules/share/perl5/:${PERL5LIB}
+module load perl
+
+#	The program we are using
+PROGRAM=${HOME}/Shared/Software/polyphen-2.2.2/bin/run_pph.pl
+#	The directory where the subs are stored
+SNPS_DIR=${HOME}/Projects/Deleterious_Mutations/Barley_SNP_PPH/
+BATCH=Batch_000
+
+#	cd into the SUBS directory
+cd $SNPS_DIR/Outs
+
+#	Define output files
+out=$BATCH.out
+err=$BATCH.err
+${PROGRAM} -s ${SNPS_DIR}/Barley_Protein_Seqs.fasta ${SNPS_DIR}/Subs/${BATCH} > $out 2> $err

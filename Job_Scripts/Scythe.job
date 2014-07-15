@@ -8,7 +8,12 @@
 #	The shared folder
 SHARED=/home/morrellp/shared
 #	The folder with the reads
-READS_DIR=${SHARED}/Datasets/NGS/Barley_Exome/IPK_SeqCapture/2013-09-19_IPK_ExomeCapture/Disk_2/fastq/new_ipk_datasets/
+READS_DIR=
+#   The file with the adapters
+ADAPTERS=
+#   The prior contamination rate
+#   I use 0.05 (5%)
+PRIOR=0.05
 #	For parallel processing
 module load parallel
 
@@ -18,55 +23,13 @@ function scythe_trim {
 	READ=${1}
 	TRIMMED=${1/.fq/_ScytheTrimmed.fastq}
 	MATCH=${1/.fq/.match}
-	scythe -a ~/Soft/scythe-master/illumina_adapters.fa -p 0.05 -o /scratch2/tkono/IPK/Disk_2/${TRIMMED} -m /scratch2/tkono/IPK/Disk_2/${MATCH} ${READ}
+	scythe -a ${ADAPTERS} -p ${PRIOR} -o ${TRIMMED} -m ${MATCH} ${READ}
 }
+#   Export function so we can call it with parallel
 export -f scythe_trim
 #	cd into the reads directory
 cd ${READS_DIR}
 
 #	Trim them in parallel and then gzip
 parallel -j8 scythe_trim ::: *.fq
-cd /scratch2/tkono/IPK/Disk_2
 parallel -j8 gzip ::: *.ScytheTrimmed.fastq
-#	For each directory
-#for d in *
-#do
-#	if [ -d $d ]
-#	then
-		#	cd into that directory
-#		cd $d
-#		#	For each item in this directory
-#		for f in *
-#		do
-#			#	If it's a directory, then we are in the KU folder
-#			if [ -d $f ]
-#			then
-#				#	cd into that one, too. These will be the KU captures
-#				#	There are two levels, so we have to do it again
-#				cd $f
-#				for g in *
-#				do
-#					cd $g
-#					#	run scythe on all the files in there
-#					for x in All*.fastq
-#					do
-#						scythe_trim $x
-#					done
-#					#	have to cd out after it's done
-#					cd ../
-#				done
-#				#	same here, cd out
-#				cd ../
-#			#	If it's not a directory, then it is the Missouri captures
-#			#	These are jsut a collection of fastq, so
-#			else
-#				for x in *.fastq
-#				do
-#					scythe_trim $x 
-#				done
-#			fi
-#		done
-#		#	And once for the Missouri captures
-#		cd ../
-#	fi
-#done

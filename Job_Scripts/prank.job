@@ -1,0 +1,19 @@
+#!/bin/sh
+
+#PBS -l mem=4000mb,nodes=1:ppn=16,walltime=72:00:00 
+#PBS -m abe 
+#PBS -M konox006@umn.edu 
+#PBS -q lab
+
+module load parallel
+
+function multi_prank {
+	IN=${1}
+	OUT=${1/.fastq/_prank_msa.fastq}
+	~/Shared/Software/prank-msa/src/prank -d=${IN} -o=../Aligned/${OUT} -DNA -iterate=3
+}
+export -f multi_prank
+
+cd /scratch2/tkono/LRT/Clusters
+
+parallel multi_prank ::: `cat ../Selected_Clusters.txt`

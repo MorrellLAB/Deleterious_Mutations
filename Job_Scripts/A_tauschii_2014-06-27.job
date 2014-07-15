@@ -1,0 +1,41 @@
+#!/bin/sh
+
+#PBS -l mem=15gb,nodes=1:ppn=8,walltime=72:00:00 
+#PBS -m abe 
+#PBS -M konox006@umn.edu 
+#PBS -q lab
+
+#	The aligner command
+PROGRAM=${HOME}/Shared/Software/bwa-0.7.8/bwa
+#	My project space folder
+#PROJECT_DIR=${HOME}/Projects/Deleterious_Mutations/Ancestral
+PROJECT_DIR=/scratch2/tkono/Outgroups/Alignments
+#	The directory for the reference sequence
+REF_DIR=${HOME}/Shared/References/Reference_Sequences/Barley/Morex
+#	The sample I am aligning
+SAMPLE="A_tauschii"
+#	The directory with the reads
+#READS_DIR=${HOME}/Shared/Datasets/NGS/T_urartu
+READS_DIR=/scratch2/tkono/Outgroups/${SAMPLE}
+YMD=`date +%Y-%m-%d`
+
+#	CHANGES
+#		2014-06-27
+#		For triticum urartu, decrease mismatch from 4 back to 6
+#		2014-06-23
+#		Observed some paralogous alignment problems
+#			Increasing mismatch penalty from 4 to 6
+#			Decreasing seed length from 5 to 4
+#       2014-06-14
+#		Initial Alignment
+#		Stealing parameters from H. bulbosum alignment
+#			- But decreasing -T 60 to -T 50
+
+mkdir -p ${PROJECT_DIR}/${SAMPLE}
+cd ${PROJECT_DIR}/${SAMPLE}
+#	Now we run the program with all our options
+$PROGRAM mem -t 8 -B 4 -k 4 -r 1.0 -M -T 50 -O 8 -E 1\
+	${REF_DIR}/bwa_MorexRef\
+    ${READS_DIR}/Forward.fastq.gz \
+    ${READS_DIR}/Reverse.fastq.gz > \
+	${SAMPLE}_${YMD}.sam

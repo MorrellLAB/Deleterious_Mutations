@@ -2,7 +2,7 @@
 
 #PBS -l mem=4000mb,nodes=1:ppn=16,walltime=72:00:00 
 #PBS -m abe 
-#PBS -M konox006@umn.edu 
+#PBS -M 
 #PBS -q lab
 
 module load parallel
@@ -16,4 +16,4 @@ export -f multi_prank
 
 cd /scratch2/tkono/LRT/Clusters
 
-parallel multi_prank ::: `cat ../Selected_Clusters.txt`
+parallel multi_prank ::: `cat ../To_Run_01`

@@ -27,10 +27,13 @@ REF=${SHARED}/Morex_Reference/Morex_Reference.fasta
 #	The alignment file
 ALIGNMENT=${BASE}/${SPECIES}/${CAPTURE}/${SAMPLE}/${SAMPLE}_${CAPTURE}_${YMD}_Finished.bam
 #	The known Indels file
-INDELS=${BASE}/${SPECIES}/Known_Variants/All_INDELs_Sorted.vcf
+# 	Updated to current path for file
+#INDELS=${BASE}/${SPECIES}/Known_Variants/All_INDELs_Sorted.vcf
+INDELS=${SHARED}/Datasets/NGS/Alignments/All_INDELs_Sorted.vcf
 #	The capture design file
-CAPTURE_DESIGN=${BASE}/${SPECIES}/${CAPTURE}/capture.bed
-
+#	Updated to current path for file
+#CAPTURE_DESIGN=${BASE}/${SPECIES}/${CAPTURE}/capture.bed
+CAPTURE_DESIGN=${SHARED}/Datasets/NGS/Alignments/Exome_Capture_Regions.bed
 #	cd into the directory
 cd ${BASE}/${SPECIES}/${CAPTURE}/${SAMPLE}
 #	JAVA OPTIONS

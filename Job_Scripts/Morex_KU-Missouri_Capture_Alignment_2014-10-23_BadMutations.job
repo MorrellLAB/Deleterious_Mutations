@@ -1,0 +1,55 @@
+#!/bin/sh
+
+#PBS -l mem=6000mb,nodes=1:ppn=8,walltime=5:00:00 
+#PBS -m abe 
+#PBS -M pmorrell@umn.edu
+#PBS -q lab
+
+#	The aligner command
+PROGRAM=${HOME}/Shared/Software/bwa-0.7.10/bwa
+#	My project space folder. 'Shared' and "Scratch' are symbolic links in your home directory
+PROJECT_DIR=${HOME}/Shared/Datasets/NGS/Barley_Exome
+#	The directory for the reference sequence
+REF_DIR=${HOME}/Shared/References/Reference_Sequences/Barley/Morex
+#	The sample I am aligning
+SAMPLE="Rasmusson"
+#	The facility that did the capture
+CAPTURE="Barley_Genomic_Prediction"
+#	The directory with the reads
+READS_DIR=${HOME}/Shared/Datasets/NGS/Barley_Exome/${CAPTURE}
+
+YMD=`date +%Y-%m-%d`
+
+SCRATCH=${HOME}/Scratch
+
+#	CHANGES
+#       2013-10-11
+#		Initial Alignment
+#       Using parameters
+#           -t 8: Use 8 threads
+#           -k 25: Seed length 25
+#           -r 1.0: Re-seed if match is greater than 1.0 * seed length
+#           -M : mark split hits as secondary
+#           -T 80: only output alignments greater than score 80
+#               This should capture only reads with less than five mismatches
+#		2013-10-25
+#			Paralogue problems!
+#			Changing seed length to 10
+#			Increasing the score cutoff to 85
+#		2014-10-02
+#			Some indels not being resolved properly.
+#			setting gapopen penalty to 8 and gapextend to 1
+#		2014-09-30 (what is Tom's date scheme, it was 30 Sept 2014?)
+#			Updated a number of file paths, include reference \
+#			version of bwa used, etc.			
+#			
+mkdir -p ${SCRATCH}/${CAPTURE}/${SAMPLE}
+cd ${SCRATCH}/${CAPTURE}/${SAMPLE}
+#	Now we run the program with all our options
+$PROGRAM mem -t 8 -k 10 -r 1.0 -M -T 85 -O 8 -E 1\
+	${REF_DIR}/131012_morex_pseudoscaffolds.fasta\
+    ${READS_DIR}/${SAMPLE}_R1_ScytheTrimmed.fastq.gz \
+    ${READS_DIR}/${SAMPLE}_R2_ScytheTrimmed.fastq.gz > \
+    $SCRATCH/${CAPTURE}/${SAMPLE}/Sample_${SAMPLE}_${CAPTURE}_${YMD}.sam
+
+	

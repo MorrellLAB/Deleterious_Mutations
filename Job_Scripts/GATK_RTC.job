@@ -18,6 +18,8 @@ SHARED=/home/morrellp/shared
 SPECIES="Barley_Exomes"
 #	And the capture we are working on 
 CAPTURE="KU-Missouri"
+#       Define username for temporary output                                                                                                    
+USER="pmorrell"
 #	The sample
 SAMPLE="Morex"
 #	The date of the alignment
@@ -58,7 +60,8 @@ cd ${BASE}/${SPECIES}/${CAPTURE}/${SAMPLE}
 #		Write the intervals to this file
 #		NOTE: This file must have extension of .list, .intervals, or .interval_list
 
-_JAVA_OPTIONS="-Xmx15g -XX:MaxPermSize=10g -Djava.io.tmpdir=/scratch2/tkono" java -jar $PROGRAM \
+_JAVA_OPTIONS="-Xmx13g -XX:MaxPermSize=10g -Djava.io.tmpdir=/home/morrellp/${USER}/Delete_Later" java -jar $PROGRAM \
+
 	-T RealignerTargetCreator\
 	-nt 1\
 	-R ${REF}\

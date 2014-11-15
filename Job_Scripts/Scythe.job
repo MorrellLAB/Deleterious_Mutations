@@ -1,35 +1,52 @@
-#!/bin/sh
+#!/bin/bash
 
-#PBS -l mem=14gb,nodes=1:ppn=8,walltime=192:00:00 
+#PBS -l mem=16gb,nodes=1:ppn=16,walltime=60:00:00 
 #PBS -m abe 
 #PBS -M konox006@umn.edu 
-#PBS -q long
+#PBS -q lab
 
 #	The shared folder
 SHARED=/home/morrellp/shared
 #	The folder with the reads
-READS_DIR=
+#	This fist one is for itasca
+#READS_DIR=/lustre/tkono/Atauschii
+#	This next one is for lab
+READS_DIR=/scratch2/tkono/Outgroups/Atauschii
 #   The file with the adapters
-ADAPTERS=
+export ADAPTERS=${SHARED}/Software/scythe/illumina_adapters.fa
+#	The path to scythe
+export SCYTHE=${SHARED}/Software/scythe/scythe
 #   The prior contamination rate
 #   I use 0.05 (5%)
-PRIOR=0.05
+export PRIOR=0.05
 #	For parallel processing
 module load parallel
 
 #	Define a bash function for doing the scythe trimming
 #	since it is the same for each file, and we don't want to keep repeating
-function scythe_trim {
+
+scythetrim() {
 	READ=${1}
-	TRIMMED=${1/.fq/_ScytheTrimmed.fastq}
-	MATCH=${1/.fq/.match}
-	scythe -a ${ADAPTERS} -p ${PRIOR} -o ${TRIMMED} -m ${MATCH} ${READ}
+	#	Make some named pipes to deal with gzip input
+	#	For some reason the shell that MSI uses doesn't understand the command
+	#	substitution and file descriptor syntax?
+	RNAME=${READ/.fastq.gz/_R}
+	mkfifo ${RNAME}
+	#	Start reading the gzip data into the R pipe
+	gzip -cd ${READ} > ${RNAME} &
+	#	Create file names for the output
+	TRIMMED=${READ/.fastq.gz/_ScytheTrimmed.fastq.gz}
+	MATCH=${READ/.fastq.gz/.match}
+	#	Start running scythe
+	${SCYTHE} -a ${ADAPTERS} -p ${PRIOR} -m ${MATCH} ${RNAME} --quiet | gzip -c > ${TRIMMED}
 }
 #   Export function so we can call it with parallel
-export -f scythe_trim
+export -f scythetrim
 #	cd into the reads directory
 cd ${READS_DIR}
-
+#	Clean up any named pipes we already have
+find . -type p -exec rm {} \;
 #	Trim them in parallel and then gzip
-parallel -j8 scythe_trim ::: *.fq
-parallel -j8 gzip ::: *.ScytheTrimmed.fastq
+parallel scythetrim ::: *.fastq.gz
+#	And then remove the pipes
+find . -type p -exec rm {} \;

@@ -4,12 +4,11 @@
 #   inference of maximum-likelihood ancestral state with FastML
 
 import sys
+import os
 from Bio import SeqIO
 
 #   How many contigs are present?
-#n_contigs = 2670738
-n_contigs=7
-
+n_contigs = 2670738
 #   Get a list of all the arguments passed
 arguments = sys.argv[1:]
 #   This is a very specific case, but the file names are the species names
@@ -61,8 +60,18 @@ for contig in xrange(1, n_contigs+1):
     aligned_len = max([len(x) for x in sequences])
     #   Check for things that are Ns
     sequences = ['N'*aligned_len if x == 'N' else x for x in sequences]
-    #   Next we print out the alignments
-    handle = open(expected_contig + '.fasta', 'w')
+    #   We want a max of 100,000 files per directory
+    dirno = 1
+    dirname = './Batch_' + str(dirno)
+    #   At 100,000 files, we create a new directory
+    if (contig % 100000 == 0) or (contig == 1):
+        try:
+            os.stat(dirname)
+        except:
+            os.mkdir(dirname)
+        dirno += 1
+    #   Next we print out the alignments into the correct directory
+    handle = open(dirname + '/' + expected_contig + '.fasta', 'w')
     for sp, aln in zip(species, sequences):
         handle.write('>' + sp + '\n' + aln + '\n')
     handle.close()

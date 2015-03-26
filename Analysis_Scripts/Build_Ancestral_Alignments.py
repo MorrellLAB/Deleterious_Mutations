@@ -64,7 +64,7 @@ for contig in xrange(1, n_contigs+1):
     dirno = 1
     dirname = './Batch_' + str(dirno)
     #   At 100,000 files, we create a new directory
-    if (contig % 100000 == 0) or (contig == 1):
+    if (contig % 100000) == 0 or contig == 1:
         try:
             os.stat(dirname)
         except:

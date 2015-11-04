@@ -41,7 +41,7 @@ class SNP(object):
         self.rc = None
         self.mappingloc = None
 
-    def parse_illumina(self, snp_id, illumina):
+    def parse_illumina(self, snp_id, states, illumina):
         """Get the contextual sequence length from the Illumina design sequence.
         Uses a regular expression to search for the '[' that encloses the query
         polymorphism. Also extracts the query states from the Illumina probe
@@ -55,7 +55,7 @@ class SNP(object):
         #   We will split on the forward slash (/) to separate the two SNP
         #   states. Some are lowercase for some reason, so we have to force
         #   uppercase
-        halves = illumina.split('/')
+        halves = states.split('/')
         self.states = [halves[0][-1].upper(), halves[1][0].upper()]
 
     def get_mapping_data(self, sam_flag, sam_chr, sam_pos, sam_seq):
@@ -91,13 +91,6 @@ class SNP(object):
         #   subtract 1 for 0-based indexing
         morex_base = refseq[self.contig][self.position-1]
         self.reference = morex_base
-        #   Then check if the SNP state was RCed when it was mapped. If so,
-        #   then we need to complement the allele states before we check for
-        #   ref or not.
-        if self.rc:
-            alleles = [str(Seq(a).complement()) for a in self.states]
-        else:
-            alleles = self.states
         #   Cast the states to a set so we can easily discard one of them
         alleles = set(self.states)
         alleles.discard(morex_base)
@@ -142,7 +135,7 @@ def main(sam, illumina, refseq):
             tmp = line.strip().split()
             #   Start a new SNP object
             s = SNP()
-            s.parse_illumina(tmp[0], tmp[2])
+            s.parse_illumina(tmp[0], tmp[1], tmp[2])
             snp_data[tmp[0]] = s
 
     #   Then go through the SAM file

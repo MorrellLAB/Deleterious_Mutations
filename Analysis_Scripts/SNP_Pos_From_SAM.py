@@ -80,10 +80,9 @@ class SNP(object):
             #   If we reverse-complement, then we have to count from the end
             #   and add to our mapping position accordingly
             self.position = self.mappingloc + \
-                len(self.qseq) - (self.context_len - 1)
+                len(self.qseq) - (self.context_len)
         else:
-            #   Otherwise it's a simple addition
-            self.position = self.mappingloc + self.context_len
+            self.position = self.mappingloc + self.context_len - 1
 
     def get_bases(self, refseq):
         """Check the base in the reference sequence to try to identify the

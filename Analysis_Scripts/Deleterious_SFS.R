@@ -6,7 +6,7 @@
 #	go on derived allele frequency as soon as it is ready
 
 #	Set the LRT significance threshold
-lrt_sig <- 0.001
+lrt_sig <- 0.01/18000
 #	Read in the table that JCF sent
 snp_table <- read.csv("Barley_Exome_LRT.csv", header=T)
 

@@ -30,22 +30,43 @@ class SNP(object):
         self.derived_samples = []
         self.genotypes = []
 
-    def set_DAF(self, DAF):
-        """Set the derived allele frequency."""
-        try:
-            DAF = float(DAF)
-            assert (DAF <= 1.0) & (DAF >= 0)
-        except (ValueError, AssertionError) as e:
-            print('Error! Derived allele frequency must be a number in [0, 1]')
-            exit(1)
-        self.DAF = DAF
+    def get_DAF(self):
+        """Calculate the derived allele frequency."""
+        #   Figure out which state is the derived allele
+        if self.anc == self.ref:
+            derived = '1'
+        elif self.anc == self.alt:
+            derived = '0'
+        else:
+            derived = 'NA'
+        if derived == 'NA':
+            self.DAF = 'NA'
+        else:
+            #   Then, how many derived alleles do we observe?
+            total = 0
+            der = 0
+            for i in self.genotypes:
+                if derived in i:
+                    der += i.count(derived)
+                if not '.' in i:
+                    total += 2
+            self.DAF = float(der)/total
 
-    def get_derived_samples(self, vcf_data):
-        """Parse a line of VCF genotyping information and figure out which
-        samples contain the derived allele."""
-        pass
-
-
+    def get_derived_samples(self, samples):
+        """Given a list of sample names, which samples contain a derived allele
+        """
+        if self.anc == self.ref:
+            derived = '1'
+        elif self.anc == self.alt:
+            derived = '0'
+        else:
+            derived = 'NA'
+        if derived == 'NA':
+            self.derived_samples = ['-']
+        else:
+            for sam, geno in zip(samples, self.genotypes):
+                if derived in geno:
+                    self.derived_samples.append(sam)
 
 def read_vcf(vcf_file):
     """Read the VCF and save the SNP position, the reference base, and the
@@ -76,7 +97,7 @@ def read_vcf(vcf_file):
                     #   We are only interested in the genotype calls, whis is
                     #   the first element before the comma. Split again on
                     #   forward slash to get the individual alleles
-                    curr_snp.genotypes += ''.join(s.split(':')[0].split('/'))
+                    curr_snp.genotypes.append(''.join(s.split(':')[0].split('/')))
                 #   Tacke it onto the list
                 snps.append(curr_snp)
     #   And then return it with the samples
@@ -183,6 +204,8 @@ def get_majority(msa, seqid, pos):
     #   Then, get the most frequent base. The most_frequent() method will
     #   give the most common element. In the case of a tie, it will return an
     #   arbitrary one
+    if len(states) < 1:
+        return('N', 0)
     majority_state = states.most_common(1)[0][0]
     num_seqs = sum(states.values())
     return (majority_state, num_seqs)
@@ -204,6 +227,8 @@ def main():
             aln_name = t_id.replace('.', '_')
             #   Read the alignment as a MultipleSequenceAlignemnt object
             aln = os.path.normpath(os.path.join(aln_dir, aln_name) + '.fasta')
+            if not os.path.isfile(aln):
+                continue
             aln = AlignIO.read(aln, 'fasta')
             #   And get the majority state
             maj, num_spec = get_majority(aln, aln_name, cds_nuc_pos)
@@ -211,14 +236,25 @@ def main():
             #   ancestral state
             if strand == '-':
                 maj_correct = str(Seq(maj).complement())
-            #   Then, we get the derived allele frequency
             else:
                 maj_correct = maj
+            #   We set the ancestral frequency to be the majority
+            x.anc = maj_correct
+            #   Then get the dericed allele frequency
+            x.get_DAF()
+            #   And then the derived samples
+            x.get_derived_samples(sample_names)
         else:
-            maj = 'N'
-            maj_correct = 'N'
-            num_spec = 0
-        print x.ref, x.alt, strand, maj, maj_correct, num_spec
+            x.anc = 'N'
+            x.DAF = 'NA'
+            x.derived_samples = ['-']
+        print '\t'.join(
+            [
+            x.snpid,
+            x.anc,
+            str(x.DAF),
+            ','.join(x.derived_samples)]
+            )
     return
 
 

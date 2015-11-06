@@ -91,6 +91,9 @@ class SNP(object):
         #   subtract 1 for 0-based indexing
         morex_base = refseq[self.contig][self.position-1]
         self.reference = morex_base
+        #   Check the reverse complement
+        if self.rc:
+            self.states = [str(Seq(s).complement()) for s in self.states]
         #   Cast the states to a set so we can easily discard one of them
         alleles = set(self.states)
         alleles.discard(morex_base)

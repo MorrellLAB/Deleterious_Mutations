@@ -194,7 +194,7 @@ def get_majority(msa, seqid, pos):
         else:
             key += 1
     #   Then, slice out the correct column
-    column = msa[:, index]
+    column = msa[:, correct_col]
     #   Then, we have to remove the query sequence, since we can't use the
     #   sequence itself to infer its own ancestral state
     col = [c for i, c in enumerate(column) if i != ref_seq]

@@ -185,6 +185,7 @@ def get_majority(msa, seqid, pos):
             ref_seq = index
             break
     key = 1
+    correct_col = -1
     for index, base in enumerate(str(msa[ref_seq].seq)):
         if key == pos:
             correct_col = index
@@ -193,6 +194,10 @@ def get_majority(msa, seqid, pos):
             continue
         else:
             key += 1
+    #   If correct_col is negative 1, then we haven't found the correct
+    #   position, for some reason
+    if correct_col == -1:
+        return ('N', 0)
     #   Then, slice out the correct column
     column = msa[:, correct_col]
     #   Then, we have to remove the query sequence, since we can't use the

@@ -193,7 +193,6 @@ def get_majority(msa, seqid, pos):
             continue
         else:
             key += 1
-    print correct_col
     #   Then, slice out the correct column
     column = msa[:, index]
     #   Then, we have to remove the query sequence, since we can't use the

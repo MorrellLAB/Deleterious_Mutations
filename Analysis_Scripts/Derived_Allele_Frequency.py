@@ -235,6 +235,10 @@ def main():
             aln = os.path.normpath(os.path.join(aln_dir, aln_name) + '.fasta')
             if not os.path.isfile(aln):
                 continue
+            #   Also have to check if the file is empty. This would cause a
+            #   Biopython error
+            if os.stat(aln).st_size == 0:
+                continue
             aln = AlignIO.read(aln, 'fasta')
             #   And get the majority state
             maj, num_spec = get_majority(aln, aln_name, cds_nuc_pos)

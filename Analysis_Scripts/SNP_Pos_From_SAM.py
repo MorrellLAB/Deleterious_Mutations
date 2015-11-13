@@ -49,6 +49,7 @@ class SNP(object):
         self.snpid = snp_id
         #   Use re.I so that we do case-insensitive match.
         cap_SNP = re.search (r'\[.+\]',illumina,re.I)
+        #check the SNP status and the strand orientation;
         if states == cap_SNP.group(0):
             offset = re.search('^[ATCGMRWSYKVHDBN]+\[', illumina, re.I)
         #   .group() returns the matching sequence

@@ -22,9 +22,9 @@ sfs.sift <- cut(sift$DAF, breaks=bins, include.lowest=TRUE)
 sfs.pph <- cut(pph$DAF, breaks=bins, include.lowest=TRUE)
 sfs.lrt <- cut(lrt$DAF, breaks=bins, include.lowest=TRUE)
 
-sfs.sift <- table(sfs.sift)/length(sift$DAF)
-sfs.pph <- table(sfs.pph)/length(pph$DAF)
-sfs.lrt <- table(sfs.lrt)/length(lrt$DAF)
+sfs.sift <- table(sfs.sift)/sum(!is.na(sift$DAF))
+sfs.pph <- table(sfs.pph)/sum(!is.na(pph$DAF))
+sfs.lrt <- table(sfs.lrt)/sum(!is.na(lrt$DAF))
 
 sfs.data <- as.data.frame(
 	cbind(
@@ -43,7 +43,7 @@ pdf(
 	)
 plt <- barplot(
 	t(sfs.data),
-	ylim=c(0, 0.2),
+	ylim=c(0, 0.4),
 	beside=TRUE,
 	axisnames=F,
 	xlab="Derived Allele Frequency",
@@ -105,9 +105,9 @@ sfs.one.bin <- cut(sfs.one, breaks=bins, include.lowest=TRUE)
 sfs.two.bin <- cut(sfs.two, breaks=bins, include.lowest=TRUE)
 sfs.three.bin <- cut(sfs.three, breaks=bins, include.lowest=TRUE)
 
-sfs.one.freq <- table(sfs.one.bin)/length(sfs.one)
-sfs.two.freq <- table(sfs.two.bin)/length(sfs.two)
-sfs.three.freq <- table(sfs.three.bin)/length(sfs.three)
+sfs.one.freq <- table(sfs.one.bin)/sum(!is.na(sfs.one))
+sfs.two.freq <- table(sfs.two.bin)/sum(!is.na(sfs.two))
+sfs.three.freq <- table(sfs.three.bin)/sum(!is.na(sfs.three))
 
 sfs.pred.data <- as.data.frame(
 	cbind(
@@ -126,7 +126,7 @@ pdf(
 	)
 plt <- barplot(
 	t(sfs.pred.data),
-	ylim=c(0, 0.2),
+	ylim=c(0, 0.4),
 	beside=TRUE,
 	axisnames=F,
 	xlab="Derived Allele Frequency",

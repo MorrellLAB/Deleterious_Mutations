@@ -48,13 +48,20 @@ class SNP(object):
         design."""
         self.snpid = snp_id
         #   Use re.I so that we do case-insensitive match.
-        offset = re.search('^[ATCGMRWSYKVHDBN]+\[', illumina, re.I)
+        cap_SNP = re.search (r'\[.+\]',illumina,re.I)
+        #check the SNP status and the strand orientation;
+        if states == cap_SNP.group(0):
+            offset = re.search('^[ATCGMRWSYKVHDBN]+\[', illumina, re.I)
         #   .group() returns the matching sequence
-        clen = len(offset.group(0))
-        self.context_len = clen
+            clen = len(offset.group(0))
+            self.context_len = clen
         #   We will split on the forward slash (/) to separate the two SNP
         #   states. Some are lowercase for some reason, so we have to force
         #   uppercase
+        else:
+            offset = re.search('\][ATCGMRWSYKVHDBN]+$', illumina, re.I)
+            clen = len(offset.group(0))
+            self.context_len = clen
         halves = states.split('/')
         self.states = [halves[0][-1].upper(), halves[1][0].upper()]
 

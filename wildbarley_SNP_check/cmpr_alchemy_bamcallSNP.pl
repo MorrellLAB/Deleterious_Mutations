@@ -61,7 +61,7 @@ while(<IN2>) {
 }
 
 print "$idt_SNPs\t$rc_SNPs\t$diff\n";
-close IN1;
+close IN2;
 
 sub reverse_complement {
         my $dna = shift;

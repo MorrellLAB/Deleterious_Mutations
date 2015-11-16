@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #20151111 by Li Lei
 #compare the genotypes I called from the bam files and the one from the Alchemy files;
-#usage: ./match_NoIndel_readTo_9Ksnp.pl .././recall_snp_pos_9k_marker/no_indel_9K_Morex_Mapping .././recall_snp_pos_9k_marker/9K_SNP_perfect_match.vcf 
+#usage:  
 use strict;
 use warnings;
 use Data::Dumper;

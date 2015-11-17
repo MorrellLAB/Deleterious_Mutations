@@ -66,8 +66,20 @@ with open(sys.argv[1], 'r') as f:
                     else:
                         lrt[s] = [snpid]
 
+#   Create an entry for joint samples
+sift['Joint'] = []
+for s in sift.iteritems():
+    sift['Joint'] += s[1]
+pph['Joint'] = []
+for s in pph.iteritems():
+    pph['Joint'] += s[1]
+lrt['Joint'] = []
+for s in lrt.iteritems():
+    lrt['Joint'] += s[1]
+
 #   Print out a nice table
 samplenames = sorted(sift.keys())
+
 
 print "Sample\tSIFT\tPPH\tLRT\tIntersect"
 for s in samplenames:

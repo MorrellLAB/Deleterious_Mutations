@@ -14,6 +14,7 @@ lrt_sig = 0.05/59277
 sift = {}
 pph = {}
 lrt = {}
+nonsyn = {}
 
 with open(sys.argv[1], 'r') as f:
     for index, line in enumerate(f):
@@ -21,6 +22,7 @@ with open(sys.argv[1], 'r') as f:
             continue
         else:
             tmp = line.strip().split('\t')
+            #   We only want to count nonsynonymous SNPs
             if tmp[7] != 'No':
                 continue
             #   First save the SNP ID
@@ -40,6 +42,15 @@ with open(sys.argv[1], 'r') as f:
                 lrt_seqnum = 0
             #   Get the sample names, 14th column
             samples = tmp[13].split(',')
+            #   Count up nonsynonymous SNPs by sample. These will be derived
+            #   nonsynonymous variants
+            for s in samples:
+                if s == '-' or s == 'NA':
+                    continue
+                if s in nonsyn:
+                    nonsyn[s].append(snpid)
+                else:
+                    nonsyn[s] = [snpid]
             #   Start counting up the samples
             if sift_pred == 'DELETERIOUS' or sift_pred == 'NONSENSE':
                 for s in samples:
@@ -76,6 +87,9 @@ for s in pph.iteritems():
 lrt['Joint'] = []
 for s in lrt.iteritems():
     lrt['Joint'] += s[1]
+nonsyn['Joint'] = []
+for s in nonsyn.iteritems():
+    nonsyn['Joint'] += s[1]
 
 #   Print out a nice table
 samplenames = sorted(sift.keys())
@@ -86,11 +100,19 @@ for s in samplenames:
     sift_snps = set(sift[s])
     pph_snps = set(pph[s])
     lrt_snps = set(lrt[s])
+    nonsyn_snps = set(nonsyn[s])
     intersection = sift_snps & pph_snps & lrt_snps
+    #   Get the lengths
+    lsift = len(sift_snps)
+    lpph = len(pph_snps)
+    llrt = len(lrt_snps)
+    lint = len(intersection)
+    lnon = len(nonsyn[s])
     toprint = '\t'.join([
         s,
-        str(len(sift_snps)),
-        str(len(pph_snps)),
-        str(len(lrt_snps)),
-        str(len(intersection))])
+        str(lsift) + ' (' + str(round(lsift/float(lnon), 3)) + ')',
+        str(lpph) + ' (' + str(round(lpph/float(lnon), 3)) + ')',
+        str(llrt) + ' (' + str(round(llrt/float(lnon), 3)) + ')',
+        str(lint) + ' (' + str(round(lint/float(lnon), 3)) + ')'
+        ])
     print toprint

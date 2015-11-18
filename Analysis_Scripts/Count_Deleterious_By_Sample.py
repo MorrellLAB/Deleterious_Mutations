@@ -14,7 +14,10 @@ lrt_sig = 0.05/59277
 sift = {}
 pph = {}
 lrt = {}
+intersect = {}
 nonsyn = {}
+
+handle = open(sys.argv[2], 'w')
 
 with open(sys.argv[1], 'r') as f:
     for index, line in enumerate(f):
@@ -40,6 +43,11 @@ with open(sys.argv[1], 'r') as f:
                 lrt_seqnum = int(tmp[24])
             except ValueError:
                 lrt_seqnum = 0
+            #   Start counting the joint number of nonsynonymous SNPs
+            if 'Joint' in nonsyn:
+                nonsyn['Joint'].append(snpid)
+            else:
+                nonsyn['Joint'] = [snpid]
             #   Get the sample names, 14th column
             samples = tmp[13].split(',')
             #   Count up nonsynonymous SNPs by sample. These will be derived
@@ -53,6 +61,10 @@ with open(sys.argv[1], 'r') as f:
                     nonsyn[s] = [snpid]
             #   Start counting up the samples
             if sift_pred == 'DELETERIOUS' or sift_pred == 'NONSENSE':
+                if 'Joint' in sift:
+                    sift['Joint'].append(snpid)
+                else:
+                    sift['Joint'] = [snpid]
                 for s in samples:
                     if s == '-' or s == 'NA':
                         continue
@@ -61,6 +73,10 @@ with open(sys.argv[1], 'r') as f:
                     else:
                         sift[s] = [snpid]
             if pph_pred == 'deleterious' or sift_pred == 'NONSENSE':
+                if 'Joint' in pph:
+                    pph['Joint'].append(snpid)
+                else:
+                    pph['Joint'] = [snpid]
                 for s in samples:
                     if s == '-' or s == 'NA':
                         continue
@@ -69,6 +85,10 @@ with open(sys.argv[1], 'r') as f:
                     else:
                         pph[s] = [snpid]
             if (lrt_pval <= lrt_sig and lrt_seqnum >= min_lrt_seq) or sift_pred == 'NONSENSE':
+                if 'Joint' in lrt:
+                    lrt['Joint'].append(snpid)
+                else:
+                    lrt['Joint'] = [snpid]
                 for s in samples:
                     if s == '-' or s == 'NA':
                         continue
@@ -76,20 +96,23 @@ with open(sys.argv[1], 'r') as f:
                         lrt[s].append(snpid)
                     else:
                         lrt[s] = [snpid]
+            #   If it's deleterious by all three methods, then we write it into a separate file
+            if (sift_pred == 'DELETERIOUS' and pph_pred == 'deleterious' and (lrt_pval <= lrt_sig and lrt_seqnum >= min_lrt_seq)) or sift_pred == 'NONSENSE':
+                if 'Joint' in intersect:
+                    intersect['Joint'].append(snpid)
+                else:
+                    intersect['Joint'] = [snpid]
+                for s in samples:
+                    if s == '-' or s == 'NA':
+                        continue
+                    if s in intersect:
+                        intersect[s].append(snpid)
+                    else:
+                        intersect[s] = [snpid]
+                handle.write(line)
+                handle.flush()
 
-#   Create an entry for joint samples
-sift['Joint'] = []
-for s in sift.iteritems():
-    sift['Joint'] += s[1]
-pph['Joint'] = []
-for s in pph.iteritems():
-    pph['Joint'] += s[1]
-lrt['Joint'] = []
-for s in lrt.iteritems():
-    lrt['Joint'] += s[1]
-nonsyn['Joint'] = []
-for s in nonsyn.iteritems():
-    nonsyn['Joint'] += s[1]
+handle.close()
 
 #   Print out a nice table
 samplenames = sorted(sift.keys())
@@ -101,7 +124,7 @@ for s in samplenames:
     pph_snps = set(pph[s])
     lrt_snps = set(lrt[s])
     nonsyn_snps = set(nonsyn[s])
-    intersection = sift_snps & pph_snps & lrt_snps
+    intersection = set(intersect[s])
     #   Get the lengths
     lsift = len(sift_snps)
     lpph = len(pph_snps)

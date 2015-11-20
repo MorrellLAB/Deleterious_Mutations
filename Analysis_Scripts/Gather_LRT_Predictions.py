@@ -42,7 +42,7 @@ def get_gene_id(fname):
     nodirname = os.path.split(fname)[1]
     #   And then take the first part, without the extension
     gname = nodirname.split('.')[0]
-    #   This is for soybena only
+    #   This is for soybean only
     gname = gname.replace('_', ':')
     return gname
 
@@ -56,8 +56,11 @@ def main(pred_dir):
             continue
         gname = get_gene_id(x)
         preds = get_prediction(x)
-        print x
-        print '\t'.join([gname] + preds)
+        #   If there aren't any predictions, then we skip the gene
+        if not preds:
+            continue
+        else:
+            print '\t'.join([gname] + preds)
     return
 
 

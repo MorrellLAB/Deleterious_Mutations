@@ -36,9 +36,10 @@ del_Hobv <- del_Hobv[!is.na(del_Hobv)]
 non_Hobv <- non_Hobv[!is.na(non_Hobv)]
 tol_Hobv <- tol_Hobv[!is.na(tol_Hobv)]
 
-print(c(mean(del_Hobv), median(del_Hobv)))
-print(c(mean(non_Hobv), median(non_Hobv)))
-print(c(mean(tol_Hobv), median(tol_Hobv)))
+print(c(mean(sample_alleles$Num_Het/15), median(sample_alleles$Num_Het/15)))
+print(c(mean(del_Hobv/15), median(del_Hobv/15)))
+print(c(mean(non_Hobv/15), median(non_Hobv/15)))
+print(c(mean(tol_Hobv/15), median(tol_Hobv/15)))
 
 #   Bin them up into side-by-side barplots like an SFS
 bins <- seq(-1, 15, by=1)

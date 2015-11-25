@@ -8,8 +8,10 @@ args <- commandArgs(TRUE)
 snp_table <- read.table(args[1], header=T)
 
 #	Set the LRT significance threshold
-#		We tested 59,277 codons
-lrt_sig <- 0.05/59277
+#		We tested 59,277 codons for barley
+#lrt_sig <- 0.05/59277
+#		And tested 64,087 for soy
+lrt_sig <- 0.05/64087
 
 #	Get those deleterious by each method
 sift <- snp_table[snp_table$SIFT == "DELETERIOUS", ]
@@ -17,7 +19,11 @@ pph <- snp_table[snp_table$PPH == "deleterious", ]
 lrt <- snp_table[snp_table$MaskedP.value <= lrt_sig, ]
 
 #	We can plot the SFS for each one
-bins <- seq(0.0, 1.0, by = 0.1)
+#		Again, for barley, we will bin by 10% classes
+#bins <- seq(0.0, 1.0, by = 0.1)
+#	We can plot the SFS for each one
+#		And 20% for soy.
+bins <- seq(0.0, 1.0, by = 0.2)
 sfs.sift <- cut(sift$DAF, breaks=bins, include.lowest=TRUE)
 sfs.pph <- cut(pph$DAF, breaks=bins, include.lowest=TRUE)
 sfs.lrt <- cut(lrt$DAF, breaks=bins, include.lowest=TRUE)
@@ -50,17 +56,27 @@ plt <- barplot(
 	ylab="Proportion",
 	col=c("red", "blue", "green")
 	)
+#	For barley, we bin up into 10% classes
+# labels <- c(
+# 	"[0, 0.1]",
+# 	"(0.1, 0.2]",
+# 	"(0.2, 0.3]",
+# 	"(0.3, 0.4]",
+# 	"(0.4, 0.5]",
+# 	"(0.5, 0.6]",
+# 	"(0.6, 0.7]",
+# 	"(0.7, 0.8]",
+# 	"(0.8, 0.9]",
+# 	"(0.9, 1.0]"
+# 	)
+#	For soy, we bin up into 20% classes, since our sample size is a lot
+#	smaller
 labels <- c(
-	"[0, 0.1]",
-	"(0.1, 0.2]",
-	"(0.2, 0.3]",
-	"(0.3, 0.4]",
-	"(0.4, 0.5]",
-	"(0.5, 0.6]",
-	"(0.6, 0.7]",
-	"(0.7, 0.8]",
-	"(0.8, 0.9]",
-	"(0.9, 1.0]"
+	"[0, 0.2]",
+	"(0.2, 0.4]",
+	"(0.4, 0.6]",
+	"(0.6, 0.8]",
+	"(0.8, 1.0]"
 	)
 at <- apply(plt, 2, mean)
 axis(
@@ -133,17 +149,27 @@ plt <- barplot(
 	ylab="Proportion",
 	col=c("red", "blue", "green")
 	)
+#	For barley, we bin up into 10% classes
+# labels <- c(
+# 	"[0, 0.1]",
+# 	"(0.1, 0.2]",
+# 	"(0.2, 0.3]",
+# 	"(0.3, 0.4]",
+# 	"(0.4, 0.5]",
+# 	"(0.5, 0.6]",
+# 	"(0.6, 0.7]",
+# 	"(0.7, 0.8]",
+# 	"(0.8, 0.9]",
+# 	"(0.9, 1.0]"
+# 	)
+#	For soy, we bin up into 20% classes, since our sample size is a lot
+#	smaller
 labels <- c(
-	"[0, 0.1]",
-	"(0.1, 0.2]",
-	"(0.2, 0.3]",
-	"(0.3, 0.4]",
-	"(0.4, 0.5]",
-	"(0.5, 0.6]",
-	"(0.6, 0.7]",
-	"(0.7, 0.8]",
-	"(0.8, 0.9]",
-	"(0.9, 1.0]"
+	"[0, 0.2]",
+	"(0.2, 0.4]",
+	"(0.4, 0.6]",
+	"(0.6, 0.8]",
+	"(0.8, 1.0]"
 	)
 at <- apply(plt, 2, mean)
 axis(

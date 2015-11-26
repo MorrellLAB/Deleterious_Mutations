@@ -9,9 +9,9 @@ snp_table <- read.table(args[1], header=T)
 
 #	Set the LRT significance threshold
 #		We tested 59,277 codons for barley
-lrt_sig <- 0.05/59277
+#lrt_sig <- 0.05/59277
 #		And tested 64,087 for soy
-#lrt_sig <- 0.05/64087
+lrt_sig <- 0.05/64087
 #	If there are less than 10 species in the alignment, we will not
 #	consider it.
 minseq <- 10
@@ -30,7 +30,7 @@ lrt <- snp_table[(snp_table$MaskedP.value <= lrt_sig & snp_table$SeqCount >= min
 #bins <- seq(0.0, 1.0, by = 0.1)
 #	We can plot the SFS for each one
 #		And 20% for soy.
-bins <- seq(0.0, 1.0, by = 0.1)
+bins <- seq(0.0, 1.0, by = 0.2)
 sfs.sift <- cut(sift$DAF, breaks=bins, include.lowest=TRUE)
 sfs.pph <- cut(pph$DAF, breaks=bins, include.lowest=TRUE)
 sfs.lrt <- cut(lrt$DAF, breaks=bins, include.lowest=TRUE)
@@ -56,7 +56,7 @@ pdf(
 	)
 plt <- barplot(
 	t(sfs.data),
-	ylim=c(0, 0.4),
+	ylim=c(0, 0.6),
 	beside=TRUE,
 	axisnames=F,
 	xlab="Derived Allele Frequency",
@@ -64,27 +64,27 @@ plt <- barplot(
 	col=c("red", "blue", "green")
 	)
 #	For barley, we bin up into 10% classes
-labels <- c(
-	"[0, 0.1]",
-	"(0.1, 0.2]",
-	"(0.2, 0.3]",
-	"(0.3, 0.4]",
-	"(0.4, 0.5]",
-	"(0.5, 0.6]",
-	"(0.6, 0.7]",
-	"(0.7, 0.8]",
-	"(0.8, 0.9]",
-	"(0.9, 1.0]"
-	)
+# labels <- c(
+# 	"[0, 0.1]",
+# 	"(0.1, 0.2]",
+# 	"(0.2, 0.3]",
+# 	"(0.3, 0.4]",
+# 	"(0.4, 0.5]",
+# 	"(0.5, 0.6]",
+# 	"(0.6, 0.7]",
+# 	"(0.7, 0.8]",
+# 	"(0.8, 0.9]",
+# 	"(0.9, 1.0]"
+# 	)
 #	For soy, we bin up into 20% classes, since our sample size is a lot
 #	smaller
-# labels <- c(
-# 	"[0, 0.2]",
-# 	"(0.2, 0.4]",
-# 	"(0.4, 0.6]",
-# 	"(0.6, 0.8]",
-# 	"(0.8, 1.0]"
-# 	)
+labels <- c(
+	"[0, 0.2]",
+	"(0.2, 0.4]",
+	"(0.4, 0.6]",
+	"(0.6, 0.8]",
+	"(0.8, 1.0]"
+	)
 at <- apply(plt, 2, mean)
 axis(
 	 side=1,
@@ -157,27 +157,27 @@ plt <- barplot(
 	col=c("red", "blue", "green")
 	)
 #	For barley, we bin up into 10% classes
-labels <- c(
-	"[0, 0.1]",
-	"(0.1, 0.2]",
-	"(0.2, 0.3]",
-	"(0.3, 0.4]",
-	"(0.4, 0.5]",
-	"(0.5, 0.6]",
-	"(0.6, 0.7]",
-	"(0.7, 0.8]",
-	"(0.8, 0.9]",
-	"(0.9, 1.0]"
-	)
+# labels <- c(
+# 	"[0, 0.1]",
+# 	"(0.1, 0.2]",
+# 	"(0.2, 0.3]",
+# 	"(0.3, 0.4]",
+# 	"(0.4, 0.5]",
+# 	"(0.5, 0.6]",
+# 	"(0.6, 0.7]",
+# 	"(0.7, 0.8]",
+# 	"(0.8, 0.9]",
+# 	"(0.9, 1.0]"
+# 	)
 #	For soy, we bin up into 20% classes, since our sample size is a lot
 #	smaller
-# labels <- c(
-# 	"[0, 0.2]",
-# 	"(0.2, 0.4]",
-# 	"(0.4, 0.6]",
-# 	"(0.6, 0.8]",
-# 	"(0.8, 1.0]"
-# 	)
+labels <- c(
+	"[0, 0.2]",
+	"(0.2, 0.4]",
+	"(0.4, 0.6]",
+	"(0.6, 0.8]",
+	"(0.8, 1.0]"
+	)
 at <- apply(plt, 2, mean)
 axis(
 	 side=1,

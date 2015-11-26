@@ -61,14 +61,14 @@ sfs.data <- cbind(
 #	And make the plot
 pdf(
 	file="SFS_by_Functional_Impact.pdf",
-	width=12,
+	width=6,
 	height=6,
 	family="Helvetica",
-	pointsize=16
+	pointsize=12
 	)
 plt <- barplot(
 	t(sfs.data),
-	ylim=c(0, 0.4),
+	ylim=c(0, 0.5),
 	beside=TRUE,
 	axisnames=F,
 	xlab="Derived Allele Frequency",
@@ -103,13 +103,14 @@ axis(
 	 at=at,
 	 labels=labels,
 	 font=1,
-	 cex.axis=0.75
+	 cex.axis=0.75,
+	 las=1
 	 )
 legend(
 	"topright",
 	c("Synonymous", "Tolerated", "Deleterious"),
 	fill=c("black", "blue", "red"),
-	cex=1.0
+	cex=0.75
 	)
 dev.off()
 

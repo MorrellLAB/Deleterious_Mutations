@@ -28,7 +28,7 @@ def lrt_del(eff_line, p=lrt_sig, n=min_lrt_seq):
         - p-value lower than Bonferroni corrected threshold
         - at least 10 sequences represented
         - Masked constraint < 1
-        - Rn == 0 (Ref. allele not present in alignment)
+        - Rn == 1 (Ref. allele present only in query species)
         - An == 0 (Alt. allele not present in alignment)
     The last two effectively filter for the query species having a truly
     derived allele."""

@@ -5,9 +5,11 @@ different prediction methods."""
 import sys
 
 min_lrt_seq = 10
-#   We predicted on 59,277 codons, so that becomes the basis of our multiple
+#   We predicted on 59,865 codons, so that becomes the basis of our multiple
 #   testing correction
-lrt_sig = 0.05/59277
+lrt_sig = 0.05/59865
+#   For soy, we counted 64,087 codons
+#lrt_sig = 0.05/64087
 
 #   Start dictionaries to hold SNP IDs of deleterious variants carried by each
 #   sample.
@@ -16,6 +18,49 @@ pph = {}
 lrt = {}
 intersect = {}
 nonsyn = {}
+
+
+#   Create a function to assess whether or not the LRT prediction turns out to
+#   be deleterious or not.
+def lrt_del(eff_line, p=lrt_sig, n=min_lrt_seq):
+    """Returns True for deleterious predictions and False otherwise. The
+    following criteria will return a deleterious prediction:
+        - p-value lower than Bonferroni corrected threshold
+        - at least 10 sequences represented
+        - Masked constraint < 1
+        - Rn == 0 (Ref. allele not present in alignment)
+        - An == 0 (Alt. allele not present in alignment)
+    The last two effectively filter for the query species having a truly
+    derived allele."""
+    fields = eff_line.strip().split()
+    try:
+        #   For barley the columns are
+        #       constraint: 23
+        #       p-value: 24
+        #       seqcount: 25
+        #       rn: 2nd from last
+        #       an: last
+        #   For soy:
+        #       constraint: 20
+        #       p-value: 21
+        #       seqcount: 22
+        #       rn: 2nd from last
+        #       an: last
+        #constraint = float(fields[22])
+        #pval = float(fields[23])
+        #nseq = int(fields[24])
+        constraint = float(fields[19])
+        pval = float(fields[20])
+        nseq = int(fields[21])
+        rn = int(fields[-2])
+        an = int(fields[-1])
+    except ValueError:
+        return False
+    #   Check all the conditions!
+    if (pval < p) and (nseq >= n) and (constraint < 1) and (rn == 1 or an == 0):
+        return True
+    else:
+        return False
 
 handle = open(sys.argv[2], 'w')
 
@@ -30,19 +75,13 @@ with open(sys.argv[1], 'r') as f:
                 continue
             #   First save the SNP ID
             snpid = tmp[0]
-            #   SIFT prediction is the 18th column
-            sift_pred = tmp[17]
-            #   PPH is the 19th
-            pph_pred = tmp[18]
-            #   LRT is the 24th and 25th
-            try:
-                lrt_pval = float(tmp[23])
-            except ValueError:
-                lrt_pval = 1
-            try:
-                lrt_seqnum = int(tmp[24])
-            except ValueError:
-                lrt_seqnum = 0
+            #   SIFT prediction is the 18th column for barley
+            #      15th for soy
+            #sift_pred = tmp[17]
+            sift_pred = tmp[14]
+            #   PPH is the 19th for barley, 16th for soy
+            #pph_pred = tmp[18]
+            pph_pred = tmp[15]
             #   Start counting the joint number of nonsynonymous SNPs
             if 'Joint' in nonsyn:
                 nonsyn['Joint'].append(snpid)
@@ -84,7 +123,7 @@ with open(sys.argv[1], 'r') as f:
                         pph[s].append(snpid)
                     else:
                         pph[s] = [snpid]
-            if (lrt_pval <= lrt_sig and lrt_seqnum >= min_lrt_seq) or sift_pred == 'NONSENSE':
+            if lrt_del(line) or sift_pred == 'NONSENSE':
                 if 'Joint' in lrt:
                     lrt['Joint'].append(snpid)
                 else:
@@ -97,7 +136,7 @@ with open(sys.argv[1], 'r') as f:
                     else:
                         lrt[s] = [snpid]
             #   If it's deleterious by all three methods, then we write it into a separate file
-            if (sift_pred == 'DELETERIOUS' and pph_pred == 'deleterious' and (lrt_pval <= lrt_sig and lrt_seqnum >= min_lrt_seq)) or sift_pred == 'NONSENSE':
+            if (sift_pred == 'DELETERIOUS' and pph_pred == 'deleterious' and lrt_del(line)) or sift_pred == 'NONSENSE':
                 if 'Joint' in intersect:
                     intersect['Joint'].append(snpid)
                 else:

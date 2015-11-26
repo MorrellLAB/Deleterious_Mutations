@@ -9,21 +9,28 @@ snp_table <- read.table(args[1], header=T)
 
 #	Set the LRT significance threshold
 #		We tested 59,277 codons for barley
-#lrt_sig <- 0.05/59277
+lrt_sig <- 0.05/59277
 #		And tested 64,087 for soy
-lrt_sig <- 0.05/64087
+#lrt_sig <- 0.05/64087
+#	If there are less than 10 species in the alignment, we will not
+#	consider it.
+minseq <- 10
+#	We also want to check the constraint score of the alignment. Codons with
+#	Constraint < 1 and alignments in which barley for sure carries the
+#	derived state (ref or alt are private to barley)
+max_constraint <- 1
 
 #	Get those deleterious by each method
 sift <- snp_table[snp_table$SIFT == "DELETERIOUS", ]
 pph <- snp_table[snp_table$PPH == "deleterious", ]
-lrt <- snp_table[snp_table$MaskedP.value <= lrt_sig, ]
+lrt <- snp_table[(snp_table$MaskedP.value <= lrt_sig & snp_table$SeqCount >= minseq & snp_table$MaskedConstraint < max_constraint & (snp_table$Rn == 1 | snp_table$An == 0)), ]
 
 #	We can plot the SFS for each one
 #		Again, for barley, we will bin by 10% classes
 #bins <- seq(0.0, 1.0, by = 0.1)
 #	We can plot the SFS for each one
 #		And 20% for soy.
-bins <- seq(0.0, 1.0, by = 0.2)
+bins <- seq(0.0, 1.0, by = 0.1)
 sfs.sift <- cut(sift$DAF, breaks=bins, include.lowest=TRUE)
 sfs.pph <- cut(pph$DAF, breaks=bins, include.lowest=TRUE)
 sfs.lrt <- cut(lrt$DAF, breaks=bins, include.lowest=TRUE)
@@ -57,27 +64,27 @@ plt <- barplot(
 	col=c("red", "blue", "green")
 	)
 #	For barley, we bin up into 10% classes
-# labels <- c(
-# 	"[0, 0.1]",
-# 	"(0.1, 0.2]",
-# 	"(0.2, 0.3]",
-# 	"(0.3, 0.4]",
-# 	"(0.4, 0.5]",
-# 	"(0.5, 0.6]",
-# 	"(0.6, 0.7]",
-# 	"(0.7, 0.8]",
-# 	"(0.8, 0.9]",
-# 	"(0.9, 1.0]"
-# 	)
+labels <- c(
+	"[0, 0.1]",
+	"(0.1, 0.2]",
+	"(0.2, 0.3]",
+	"(0.3, 0.4]",
+	"(0.4, 0.5]",
+	"(0.5, 0.6]",
+	"(0.6, 0.7]",
+	"(0.7, 0.8]",
+	"(0.8, 0.9]",
+	"(0.9, 1.0]"
+	)
 #	For soy, we bin up into 20% classes, since our sample size is a lot
 #	smaller
-labels <- c(
-	"[0, 0.2]",
-	"(0.2, 0.4]",
-	"(0.4, 0.6]",
-	"(0.6, 0.8]",
-	"(0.8, 1.0]"
-	)
+# labels <- c(
+# 	"[0, 0.2]",
+# 	"(0.2, 0.4]",
+# 	"(0.4, 0.6]",
+# 	"(0.6, 0.8]",
+# 	"(0.8, 1.0]"
+# 	)
 at <- apply(plt, 2, mean)
 axis(
 	 side=1,
@@ -150,27 +157,27 @@ plt <- barplot(
 	col=c("red", "blue", "green")
 	)
 #	For barley, we bin up into 10% classes
-# labels <- c(
-# 	"[0, 0.1]",
-# 	"(0.1, 0.2]",
-# 	"(0.2, 0.3]",
-# 	"(0.3, 0.4]",
-# 	"(0.4, 0.5]",
-# 	"(0.5, 0.6]",
-# 	"(0.6, 0.7]",
-# 	"(0.7, 0.8]",
-# 	"(0.8, 0.9]",
-# 	"(0.9, 1.0]"
-# 	)
+labels <- c(
+	"[0, 0.1]",
+	"(0.1, 0.2]",
+	"(0.2, 0.3]",
+	"(0.3, 0.4]",
+	"(0.4, 0.5]",
+	"(0.5, 0.6]",
+	"(0.6, 0.7]",
+	"(0.7, 0.8]",
+	"(0.8, 0.9]",
+	"(0.9, 1.0]"
+	)
 #	For soy, we bin up into 20% classes, since our sample size is a lot
 #	smaller
-labels <- c(
-	"[0, 0.2]",
-	"(0.2, 0.4]",
-	"(0.4, 0.6]",
-	"(0.6, 0.8]",
-	"(0.8, 1.0]"
-	)
+# labels <- c(
+# 	"[0, 0.2]",
+# 	"(0.2, 0.4]",
+# 	"(0.4, 0.6]",
+# 	"(0.6, 0.8]",
+# 	"(0.8, 1.0]"
+# 	)
 at <- apply(plt, 2, mean)
 axis(
 	 side=1,
@@ -181,7 +188,7 @@ axis(
 	 )
 legend(
 	"topright",
-	c("One Method", "Two Methods", "Three Methods"),
+	c("One Approach", "Two Approaches", "Three Approaches"),
 	fill=c("red", "blue", "green"),
 	cex=1.0
 	)

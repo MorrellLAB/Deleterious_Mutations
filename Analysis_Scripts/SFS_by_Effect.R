@@ -11,20 +11,24 @@ args <- commandArgs(TRUE)
 effects <- read.table(args[1], header=T)
 
 #	Set the LRT significance threshold
-#		We tested 59,277 codons for barley
-#lrt_sig <- 0.05/59277
+#		We tested 59,865 codons for barley
+#lrt_sig <- 0.05/59865
 #		And tested 64,087 for soy
 lrt_sig <- 0.05/64087
+#	We only want to consider codons with at least 10 sequences represented
+minseq <- 10
+#	And those with constraint < 1
+maxconstraint <- 1
 
 #	What is the DAF for synonymous SNPs
 daf.syn <- effects[effects["Silent"] == "Yes", ]
 
 #	If at least one method is tolerated, it gets put into the tolerated bin
 nonsyn <- effects[effects["Silent"] == "No",]
-tolerated <- (nonsyn["SIFT"] == "TOLERATED") | (nonsyn["PPH"] == "neutral") | (nonsyn["MaskedP.value"] > lrt_sig & nonsyn["SeqCount"] >= 10)
+tolerated <- (nonsyn["SIFT"] == "TOLERATED") | (nonsyn["PPH"] == "neutral") | (nonsyn["MaskedP.value"] >= lrt_sig & nonsyn["SeqCount"] >= 10)
 daf.tol <- nonsyn[tolerated,]
 #	If it is deleterious by all three methods, then it is inferred deleteirous
-deleterious <- (nonsyn["SIFT"] == "DELETERIOUS") & (nonsyn["PPH"] == "deleterious") & (nonsyn["MaskedP.value"] <= lrt_sig & nonsyn["SeqCount"] >= 10)
+deleterious <- (nonsyn["SIFT"] == "DELETERIOUS") & (nonsyn["PPH"] == "deleterious") & (nonsyn["MaskedP.value"] < lrt_sig & nonsyn["SeqCount"] >= 10 & nonsyn["MaskedConstraint"] < maxconstraint & (nonsyn["Rn"] == 1 | nonsyn["An"] == 0))
 daf.del <- nonsyn[deleterious,]
 
 daf.syn.nomiss <- daf.syn[!is.na(daf.syn["DAF"]), "DAF"]
@@ -37,10 +41,10 @@ length(daf.del.nomiss)
 
 #	We can plot the SFS for each one
 #		Again, for barley, we will bin by 10% classes
-#bins <- seq(0.0, 1.0, by = 0.1)
+bins <- seq(0.0, 1.0, by = 0.1)
 #	We can plot the SFS for each one
 #		And 20% for soy.
-bins <- seq(0.0, 1.0, by = 0.2)
+#bins <- seq(0.0, 1.0, by = 0.2)
 #	And then the SFS
 sfs.syn <- cut(daf.syn.nomiss, breaks=bins, include.lowest=TRUE)
 sfs.tol <- cut(daf.tol.nomiss, breaks=bins, include.lowest=TRUE)
@@ -72,27 +76,27 @@ plt <- barplot(
 	col=c("black", "blue", "red")
 	)
 #	For barley, we bin up into 10% classes
-# labels <- c(
-# 	"[0, 0.1]",
-# 	"(0.1, 0.2]",
-# 	"(0.2, 0.3]",
-# 	"(0.3, 0.4]",
-# 	"(0.4, 0.5]",
-# 	"(0.5, 0.6]",
-# 	"(0.6, 0.7]",
-# 	"(0.7, 0.8]",
-# 	"(0.8, 0.9]",
-# 	"(0.9, 1.0]"
-# 	)
+labels <- c(
+	"[0, 0.1]",
+	"(0.1, 0.2]",
+	"(0.2, 0.3]",
+	"(0.3, 0.4]",
+	"(0.4, 0.5]",
+	"(0.5, 0.6]",
+	"(0.6, 0.7]",
+	"(0.7, 0.8]",
+	"(0.8, 0.9]",
+	"(0.9, 1.0]"
+	)
 #	For soy, we bin up into 20% classes, since our sample size is a lot
 #	smaller
-labels <- c(
-	"[0, 0.2]",
-	"(0.2, 0.4]",
-	"(0.4, 0.6]",
-	"(0.6, 0.8]",
-	"(0.8, 1.0]"
-	)
+# labels <- c(
+# 	"[0, 0.2]",
+# 	"(0.2, 0.4]",
+# 	"(0.4, 0.6]",
+# 	"(0.6, 0.8]",
+# 	"(0.8, 1.0]"
+# 	)
 at <- apply(plt, 2, mean)
 axis(
 	 side=1,

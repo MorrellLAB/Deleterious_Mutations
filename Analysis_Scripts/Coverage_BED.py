@@ -13,11 +13,16 @@ coverage_cutoff = 20
 #   sufficient coverage are closer than this distance, we will collapse them
 #   into one contiguous region.
 tolerance = 50
+#   This is the minimum length a feature should be
+min_dist = 200
 
 
 def consecutive(x):
     """A function to return start and end as tuples for consecutive integers
     in a list."""
+    #   Sometimes x is a single element
+    if len(x) == 1:
+        return [(x[0], x[0]+1)]
     starts = []
     ends = []
     for i in range(1, len(x)):
@@ -37,12 +42,15 @@ def consecutive(x):
     return zip(starts, ends)
 
 
-def collapse(intervals, tolerance=tolerance):
+def collapse(intervals, tolerance=tolerance, distance=min_dist):
     """A function to combine intervals that are close together. If they have
     'tolerance' basepairs or less between them, they will be combined."""
     #   If there is only one interval, we return it
     if len(intervals) == 1:
-        return intervals
+        if intervals[0][1] - intervals[0][0] > distance:
+            return intervals
+        else:
+            return None
     #   We take a similar approach as in consecutive(). Compare the end of one
     #   interval with the start of the next.
     starts = []
@@ -60,7 +68,11 @@ def collapse(intervals, tolerance=tolerance):
     else:
         #   We have to append the final endpoint, no matter what
         ends.append(intervals[i][1])
-    return zip(starts, ends)
+    col = []
+    for i in zip(starts, ends):
+        if i[1] - i[0] > distance:
+            col.append(i)
+    return col
 
 captured_contigs = {}
 with open(sys.argv[1], 'r') as f:
@@ -86,6 +98,8 @@ with open(sys.argv[1], 'r') as f:
 for ctg in captured_contigs.keys():
     consec = consecutive(captured_contigs[ctg])
     collapsed = collapse(consec)
+    if not collapsed:
+        continue
     for interval in collapsed:
         #   We have to subtract 1, since the coordinates are presented as
         #   1-based positions.

@@ -72,5 +72,5 @@ with open(sys.argv[1], 'r') as f:
 
 #   Calculate the heterozygosity
 for sample in het.keys():
-    ho = float(het[sample]['Het'])/het[sample]['Hom']
+    ho = float(het[sample]['Het'])/(het[sample]['Hom'] + het[sample]['Het'])
     print sample + '\t' + str(ho)

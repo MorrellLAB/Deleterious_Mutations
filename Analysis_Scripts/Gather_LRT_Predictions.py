@@ -7,6 +7,7 @@ import sys
 import re
 import os
 
+
 def dir_contents(pred_dir):
     """Returns the contents of the directory, being sure to give each file's
     full path."""
@@ -28,11 +29,27 @@ def get_prediction(fname):
     function uses a super simple heuristic to try to find the prediction line.
     It looks for an alignment report line that is different than the surrounding
     lines."""
+    preds = []
     with open(fname, 'r') as f:
         for line in f:
             if re.match('^[0-9]', line):
-                if len(line.split()) > 4:
-                    return line.strip().split()
+                if len(line.split()) > 4 and 'NOSNP' not in line:
+                    #   Extract the columns we want from the output, in the
+                    #   right order. These are determined by JCF, and are
+                    #       ...?
+                    tmp = line.strip().split()
+                    fields = [
+                        tmp[0],
+                        tmp[3],
+                        tmp[5],
+                        tmp[16],
+                        tmp[17],
+                        tmp[6],
+                        tmp[7],
+                        tmp[8]
+                        ]
+                    preds.append(fields)
+    return preds
 
 
 def get_gene_id(fname):
@@ -43,13 +60,25 @@ def get_gene_id(fname):
     #   And then take the first part, without the extension
     gname = nodirname.split('.')[0]
     #   This is for soybean only
-    gname = gname.replace('_', ':')
+    #gname = gname.replace('_', ':')
     return gname
 
 
 def main(pred_dir):
     """Main function"""
     pred_files = dir_contents(pred_dir)
+    #   Print the header
+    print '\t'.join([
+        'TranscriptID',
+        'AlignedPosition',
+        'Constraint',
+        'P-value',
+        'MaskedConstraint',
+        'MaskedP-value',
+        'SeqCount',
+        'Alignment',
+        'ReferenceAA'
+        ])
     for x in pred_files:
         #   Check if the file is empty
         if os.stat(x).st_size == 0:
@@ -60,7 +89,8 @@ def main(pred_dir):
         if not preds:
             continue
         else:
-            print '\t'.join([gname] + preds)
+            for p in preds:
+                print '\t'.join([gname] + p)
     return
 
 

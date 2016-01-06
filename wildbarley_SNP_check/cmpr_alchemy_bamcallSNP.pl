@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #2015/11/11 by Li Lei
-#compare the genotypes I called from the bam files and the one from the Alchemy files;
+#compare the genotypes I called from the bam files and the one from the Alchemy files to see how many SNPs we called from BAM files can be validated by Alchemy data;
 #usage:  ./cmpr_alchemy_bamcallSNP.pl ALCHEMY.vcf snp_called_from_BAM.vcf >compared_genotype_Alchemy_vcf.txt
 use strict;
 use warnings;

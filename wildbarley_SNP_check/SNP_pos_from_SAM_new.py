@@ -6,7 +6,9 @@ arguments:
     1) SAM file with contextual sequence mapping data
     2) Illumina design sequences
     3) Reference assembly
-This script requires Biopython."""
+This script requires Biopython.
+e.g. ./SNP_pos_from_SAM_new.py no_indel_9K_Morex_Mapping.sam BOPA2_illumina_SNP_seq ~/Shared/shared/References/Reference_Sequences/Barley/Morex/Morex_Reference.fasta >9K_SNP_perfect_match.vcf
+"""
 
 import sys
 import re
